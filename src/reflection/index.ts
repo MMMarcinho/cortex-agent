@@ -1,6 +1,6 @@
-import Anthropic from '@anthropic-ai/sdk';
 import * as aizo from '../aizo_bridge';
 import type { ReflectionInput } from '../types';
+import type { ChatClient } from '../llm/types';
 
 const DEFAULT_TRIGGER = {
   toolCallThreshold:    15,
@@ -35,7 +35,7 @@ interface ReflectionResult {
 
 async function runReflection(
   input: ReflectionInput,
-  llmClient: Anthropic,
+  llmClient: ChatClient,
 ): Promise<ReflectionResult | null> {
   if (input.episodicEvents.length === 0) return null;
 
@@ -70,13 +70,13 @@ Return ONLY valid JSON. Return empty arrays/zeros if nothing needs changing.
   "mode_correction": {"explore_bias_delta": 0.0, "conserve_bias_delta": 0.0}
 }`;
 
-    const resp = await llmClient.messages.create({
-      model:      'claude-haiku-4-5-20251001',
-      max_tokens: 512,
-      messages:   [{ role: 'user', content: prompt }],
+    const resp = await llmClient.chat({
+      system:    '',
+      messages:  [{ role: 'user', content: prompt }],
+      maxTokens: 512,
     });
 
-    const text    = resp.content.find(b => b.type === 'text')?.text ?? '{}';
+    const text    = (resp.content.find(b => b.type === 'text') as { type: 'text'; text: string } | undefined)?.text ?? '{}';
     const cleaned = text.replace(/```json\n?|\n?```/g, '').trim();
     const result  = JSON.parse(cleaned) as ReflectionResult;
 
@@ -95,6 +95,6 @@ Return ONLY valid JSON. Return empty arrays/zeros if nothing needs changing.
   }
 }
 
-export function spawnReflection(input: ReflectionInput, llmClient: Anthropic): void {
+export function spawnReflection(input: ReflectionInput, llmClient: ChatClient): void {
   setImmediate(() => runReflection(input, llmClient).catch(() => {}));
 }

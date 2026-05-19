@@ -1,7 +1,7 @@
 import { execFile, spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
-import type Anthropic from '@anthropic-ai/sdk';
+import type { ChatClient } from '../llm/types';
 import type { AizoEntry, AizoConfig } from '../types';
 
 // ── Binary resolution ─────────────────────────────────────────────────────────
@@ -164,7 +164,7 @@ function runAizoStdin(args: string[], input: string, timeout: number): Promise<s
 //   2. Claude Haiku  — extracts preferences, returns {"entries":[...]}
 //   3. aizo import   — upserts entries into the DB (handles score smoothing)
 //
-export async function analyze(sessionText: string, llmClient: Anthropic): Promise<void> {
+export async function analyze(sessionText: string, llmClient: ChatClient): Promise<void> {
   if (degraded || !sessionText.trim()) return;
 
   try {
@@ -173,12 +173,12 @@ export async function analyze(sessionText: string, llmClient: Anthropic): Promis
     if (!extractionPrompt) return;
 
     // Step 2: call our LLM
-    const resp = await llmClient.messages.create({
-      model:      'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      messages:   [{ role: 'user', content: extractionPrompt }],
+    const resp = await llmClient.chat({
+      system:    '',
+      messages:  [{ role: 'user', content: extractionPrompt }],
+      maxTokens: 1024,
     });
-    const text    = resp.content.find(b => b.type === 'text')?.text ?? '{}';
+    const text = (resp.content.find(b => b.type === 'text') as { type: 'text'; text: string } | undefined)?.text ?? '{}';
     const cleaned = text.replace(/```json\n?|\n?```/g, '').trim();
 
     // Quick sanity check before piping

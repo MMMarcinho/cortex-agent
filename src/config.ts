@@ -3,8 +3,8 @@ import path from 'path';
 import os from 'os';
 import type { Config } from './types';
 
-export const GLOBAL_CONFIG_DIR   = path.join(os.homedir(), '.connor');
-export const PROJECT_CONFIG_DIR  = path.join(process.cwd(), '.connor');
+export const GLOBAL_CONFIG_DIR   = path.join(os.homedir(), '.cortex');
+export const PROJECT_CONFIG_DIR  = path.join(process.cwd(), '.cortex');
 const GLOBAL_CONFIG_FILE  = path.join(GLOBAL_CONFIG_DIR, 'config.json');
 const PROJECT_CONFIG_FILE = path.join(PROJECT_CONFIG_DIR, 'config.json');
 
@@ -65,11 +65,11 @@ function deepMerge<T extends object>(base: T, override: Partial<T>): T {
 
 function envOverrides(): Partial<Config> {
   const o: Partial<Config> = {};
-  if (process.env['CONNOR_MODEL'])        o.model        = process.env['CONNOR_MODEL'];
-  if (process.env['CONNOR_MAX_TOKENS'])   o.max_tokens   = Number(process.env['CONNOR_MAX_TOKENS']);
+  if (process.env['CORTEX_MODEL'])        o.model        = process.env['CORTEX_MODEL'];
+  if (process.env['CORTEX_MAX_TOKENS'])   o.max_tokens   = Number(process.env['CORTEX_MAX_TOKENS']);
   if (process.env['AIZO_BINARY'])         o.aizo_binary  = process.env['AIZO_BINARY'];
   if (process.env['AIZO_DB'])             o.aizo_db      = process.env['AIZO_DB'];
-  if (process.env['CONNOR_SESSIONS_DIR']) o.sessions_dir = process.env['CONNOR_SESSIONS_DIR'];
+  if (process.env['CORTEX_SESSIONS_DIR']) o.sessions_dir = process.env['CORTEX_SESSIONS_DIR'];
   return o;
 }
 

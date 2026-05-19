@@ -1,4 +1,4 @@
-# connor-agent Memory
+# cortex-agent Memory
 
 This file is the human-readable snapshot of the agent's long-term memory (aizo DB).
 The agent does NOT read this file — it queries aizo directly.
